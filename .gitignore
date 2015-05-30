@@ -1,0 +1,6 @@
+.*
+!.gitignore
+/hwin
+*.exe
+*.o
+*.res
