@@ -5,10 +5,31 @@
 
 using namespace hWin;
 
-class mywnd : public wnd {
+class mynotify : public notify {
 public:
-	mywnd(cls *c) : wnd(c) {}
+	mynotify(notify_wnd *w);
+	virtual void proc(LPARAM m);
+};
+
+mynotify::mynotify(notify_wnd *w) : notify(w)
+{
+	NOTIFYICONDATA *ni = get();
+
+	ni->uFlags = NIF_ICON | NIF_MESSAGE | NIF_TIP;
+	ni->hIcon = ::LoadIcon(getInst(), "ICON_TEST");
+}
+
+void mynotify::proc(LPARAM m)
+{
+}
+
+class mywnd : public wnd {
+	notify_wnd *nw;
+	mynotify *n;
+public:
+	mywnd(cls *c) : wnd(c), nw(NULL), n(NULL) {}
 	virtual LRESULT proc(HWND w, UINT m, WPARAM wp, LPARAM lp);
+	virtual void on_create(void);
 };
 
 LRESULT mywnd::proc(HWND w, UINT m, WPARAM wp, LPARAM lp)
@@ -19,6 +40,16 @@ LRESULT mywnd::proc(HWND w, UINT m, WPARAM wp, LPARAM lp)
 		return 0;
 	}
 	return ::DefWindowProc(w, m, wp, lp);
+}
+
+void mywnd::on_create(void)
+{
+	nw = new notify_wnd(get_class());
+	nw->create();
+
+	n = new mynotify(nw);
+
+	n->add();
 }
 
 class myapp : public app {
